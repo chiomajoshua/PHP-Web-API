@@ -6,27 +6,28 @@ header("Content-Type: application/json; charset=UTF-8");
 // database connection will be here
 // include database and object files
 include_once '../config/database.php';
-include_once '../objects/customer.php';
+include_once '../objects/user.php';
  
 // instantiate database and product object
 $database = new Database();
 $db = $database->getConnection();
  
 // initialize object
-$customer = new Customer($db);
+$user = new User($db);
  
-// read customer will be here
+// read user will be here
 // query products
-$stmt = $customer->read();
+$stmt = $user->read();
 $num = $stmt->rowCount();
  
 // check if more than 0 record found
 if($num>0){
  
     // products array
-    $customers_arr=array();
-    $customers_arr["Customers"]=array();
+     $user_arr=array();
+    $user_arr["RespObj"]=array();
     $RespCode = http_response_code(200);
+
  
     // retrieve our table contents
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
@@ -35,44 +36,41 @@ if($num>0){
         // just $name only
         extract($row);
  
-        $customer_item=array(
-            "sn" => $sn,
-            "customer_id" => $customer_id,
+        $user_item=array(
+            "user_id" => $user_id,
+            "username" => $username,
             "lastname" => $lastname,
             "firstname" => $firstname,
+            "gender" => $gender,
             "phone" => $phone,
             "email" => $email,
             "address" => $address,
-            "gender" => $gender,
-            "preferred_product" => $preferred_product,
-            "favourite_club_country" => $favourite_club_country,
-            "facebook_handle" => $facebook_handle,
-            "instagram_handle" => $instagram_handle
+            "user_role" => $user_role
         );
  
-        array_push($customers_arr["Customers"], $customer_item);
+        array_push($user_arr["RespObj"], $user_item);
     }
  
     // set response code - 200 OK
     http_response_code(200);
     $RespCode = http_response_code(200);
  
-    // show customer data in json format
-    echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , "RespObj" => $customers_arr, "RecordCount" => $num));
+    // show user data in json format
+    echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , $user_arr, "RecordCount" => $num));
 }
 
 
  
-// no customer found will be here
+// no user found will be here
 else{
  
     // set response code - 404 Not found
     http_response_code(404);
     $RespCode = http_response_code(404);
  
-    // tell the user no customer found
+    // tell the user no user found
     echo json_encode(
-        array("RespCode" => $RespCode,"RespMxg" => "Failed", "exception" => "null", "RespObj" => "No customers found.", "RecordCount" => $num)
+        array("RespCode" => $RespCode,"RespMxg" => "Failed", "exception" => "null", "RespObj" => "No users found.", "RecordCount" => $num)
     );
 }
 

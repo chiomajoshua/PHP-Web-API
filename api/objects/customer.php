@@ -47,9 +47,30 @@ class Customer{
         return $stmt;
     
 }
+
+function isAlreadyExist(){
+    $query = "SELECT *
+        FROM
+            " . $this->table_name . " 
+        WHERE
+            customer_id='".$this->customer_id."'";
+    // prepare query statement
+    $stmt = $this->conn->prepare($query);
+    // execute query
+    $stmt->execute();
+    if($stmt->rowCount() > 0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 // create customer
 function create(){
- 
+    
+    if($this->isAlreadyExist()){
+        return false;
+    }
     // query to insert record
     $query = "INSERT INTO
                 " . $this->table_name . "
@@ -253,6 +274,40 @@ function delete(){
  
     return false;
      
+}
+
+// search customers
+function search($keywords){
+ 
+    // select all query
+    $query = "SELECT
+                sn, customer_id, lastname, firstname, phone, email, address, gender, preferred_product, favourite_club_country, facebook_handle, instagram_handle
+            FROM
+                " . $this->table_name . "
+               
+            WHERE
+                customer_id LIKE ? OR lastname LIKE ? OR firstname LIKE ? OR
+                phone LIKE ?
+            ORDER BY
+                sn DESC";
+ 
+    // prepare query statement
+    $stmt = $this->conn->prepare($query);
+ 
+    // sanitize
+    $keywords=htmlspecialchars(strip_tags($keywords));
+    $keywords = "%{$keywords}%";
+ 
+    // bind
+    $stmt->bindParam(1, $keywords);
+    $stmt->bindParam(2, $keywords);
+    $stmt->bindParam(3, $keywords);
+    $stmt->bindParam(4, $keywords);
+ 
+    // execute query
+    $stmt->execute();
+ 
+    return $stmt;
 }
 }
 ?>

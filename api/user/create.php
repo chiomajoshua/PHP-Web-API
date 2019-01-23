@@ -10,56 +10,52 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 include_once '../config/database.php';
  
 // instantiate user object
-include_once '../objects/customer.php';
+include_once '../objects/user.php';
  
 $database = new Database();
 $db = $database->getConnection();
  
-$customer = new Customer($db);
+$user = new User($db);
  
 // get posted data
 $data = json_decode(file_get_contents("php://input"));
  
 // make sure data is not empty
 if(
-    !empty($data->customer_id) &&
+    !empty($data->username) &&
+    !empty($data->password) &&
     !empty($data->lastname) &&
     !empty($data->firstname) &&
+    !empty($data->gender) &&
     !empty($data->phone) &&
     !empty($data->email) &&
-    !empty($data->address) &&
-    !empty($data->gender) &&
-    !empty($data->preferred_product) &&
-    !empty($data->favourite_club_country) &&
-    !empty($data->facebook_handle) &&
-    !empty($data->instagram_handle)
+    !empty($data->address) && 
+    !empty($data->user_role)
 ){
  
-    // set customer property values
-    $customer->customer_id = $data->customer_id;
-    $customer->lastname = $data->lastname;
-    $customer->firstname = $data->firstname;
-    $customer->phone = $data->phone;
-    $customer->email = $data->email;
-    $customer->address = $data->address;
-    $customer->gender = $data->gender;
-    $customer->preferred_product = $data->preferred_product;
-    $customer->favourite_club_country = $data->favourite_club_country;
-    $customer->facebook_handle = $data->facebook_handle;
-    $customer->instagram_handle = $data->instagram_handle;
+    // set user property values
+    $user->username = $data->username;
+    $user->password = $data->password;
+    $user->lastname = $data->lastname;
+    $user->firstname = $data->firstname;
+    $user->gender = $data->gender;
+    $user->phone = $data->phone;
+    $user->email = $data->email;
+    $user->address = $data->address;    
+    $user->user_role = $data->user_role;
  
-    // create the customer
-    if($customer->create()){
+    // create the user
+    if($user->create()){
  
         // set response code - 201 created
         http_response_code(201);
         $RespCode = http_response_code(201);
  
         // tell the user
-        echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , "RespObj" => "Customer Account Has Been Successfully Created", "RecordCount" => 0));
+        echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , "RespObj" => "User Account Has Been Successfully Created", "RecordCount" => 0));
     }
  
-    // if unable to create the customer, tell the user
+    // if unable to create the user, tell the user
     else{
  
         // set response code - 503 service unavailable
@@ -67,7 +63,7 @@ if(
         $RespCode = http_response_code(503);
  
         // tell the user
-        echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "failed" , "RespObj" => "Unable To Create Customer Account", "RecordCount" => 0));
+        echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "failed" , "RespObj" => "Unable To Create User Account", "RecordCount" => 0));
     }
 }
  

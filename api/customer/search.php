@@ -2,33 +2,38 @@
 // required headers
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Headers: access");
  
-// database connection will be here
 // include database and object files
+include_once '../config/core.php';
 include_once '../config/database.php';
 include_once '../objects/customer.php';
  
 // instantiate database and product object
-$database = new Database();
+$database = new Database(); 
 $db = $database->getConnection();
  
 // initialize object
 $customer = new Customer($db);
  
-// read customer will be here
-// query products
-$stmt = $customer->read();
+// get keywords
+$keywords=isset($_GET["searchword"]) ? $_GET["searchword"] : "";
+ 
+// query customer
+$stmt = $customer->search($keywords);
 $num = $stmt->rowCount();
  
 // check if more than 0 record found
 if($num>0){
  
-    // products array
-    $customers_arr=array();
-    $customers_arr["Customers"]=array();
-    $RespCode = http_response_code(200);
+    // customer array
+    $customer_arr=array();
+    $customer_arr["RespObj"]=array();
  
     // retrieve our table contents
+ 
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
         // extract row
         // this will make $row['name'] to
@@ -50,30 +55,24 @@ if($num>0){
             "instagram_handle" => $instagram_handle
         );
  
-        array_push($customers_arr["Customers"], $customer_item);
+        array_push($customer_arr["RespObj"], $customer_item);
     }
  
     // set response code - 200 OK
     http_response_code(200);
     $RespCode = http_response_code(200);
  
-    // show customer data in json format
-    echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , "RespObj" => $customers_arr, "RecordCount" => $num));
+    // show customer data
+    echo json_encode(array("RespCode" => $RespCode,"exception" => "null", "RespMxg" => "success" , "RespObj" => $customer_arr, "RecordCount" => $num));;
 }
-
-
  
-// no customer found will be here
 else{
- 
     // set response code - 404 Not found
     http_response_code(404);
-    $RespCode = http_response_code(404);
  
     // tell the user no customer found
     echo json_encode(
-        array("RespCode" => $RespCode,"RespMxg" => "Failed", "exception" => "null", "RespObj" => "No customers found.", "RecordCount" => $num)
+        array("message" => "No customer found.")
     );
 }
-
 ?>
